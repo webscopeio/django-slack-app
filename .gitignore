@@ -1,0 +1,5 @@
+.idea
+dist
+*.egg-info
+__pycache__
+db.sqlite3
