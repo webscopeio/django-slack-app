@@ -1,5 +1,11 @@
-from django.http import JsonResponse
-from django.urls import reverse
+from functools import wraps
+
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from slack_integration.forms import SlackCommandForm
+
+from .helpers import is_verified_slack_request
 
 from .models import SlackWorkspace, SlackUserMapping
 
@@ -36,3 +42,43 @@ def require_linked_slack_account():
         return _decorator
 
     return decorator
+
+
+def slack_verify_request(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if is_verified_slack_request(request):
+            return view_func(request, *args, **kwargs)
+        else:
+            return HttpResponseBadRequest("Slack signature verification failed")
+
+    return wraps(view_func)(wrapped_view)
+
+
+def slack_command(view_func):
+    @csrf_exempt
+    @slack_verify_request  # all slack commands must be verified
+    @require_http_methods(["POST"])
+    def wrapped_view(request, *args, **kwargs):
+        form = SlackCommandForm(request.POST)
+        if not form.is_valid():
+            return HttpResponseBadRequest('Invalid request')
+
+        team_id = form.cleaned_data.get('team_id')
+        user_id = form.cleaned_data.get('user_id')
+
+        workspace = SlackWorkspace.objects.get(id=team_id)
+        slack_user_mapping = SlackUserMapping.objects.get(slack_user_id=user_id)
+
+        return view_func(request, slack_user_mapping=slack_user_mapping, slack_workspace=workspace, *args, **kwargs)
+
+    return wraps(view_func)(wrapped_view)
+
+
+def slack_command_simple(view_func):
+    @csrf_exempt
+    @slack_verify_request  # all slack commands must be verified
+    @require_http_methods(["POST"])
+    def wrapped_view(request, *args, **kwargs):
+        return view_func(request, *args, **kwargs)
+
+    return wraps(view_func)(wrapped_view)

@@ -51,3 +51,5 @@ def slack_login_callback(request):
         login(request, user)
 
     return HttpResponseRedirect(SLACK_LOGIN_OAUTH_REDIRECT_URL)
+
+
