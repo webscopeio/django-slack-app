@@ -1,11 +1,12 @@
 from functools import wraps
 
+from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from slack_integration.forms import SlackCommandForm
 
-from .helpers import is_verified_slack_request
+from .helpers import is_verified_slack_request, slack_interactivity_callbacks
 
 from .models import SlackWorkspace, SlackUserMapping
 
@@ -63,6 +64,7 @@ def slack_command(view_func):
         if not form.is_valid():
             return HttpResponseBadRequest('Invalid request')
 
+        # TODO - what if user is not linked?
         team_id = form.cleaned_data.get('team_id')
         user_id = form.cleaned_data.get('user_id')
 
@@ -82,3 +84,13 @@ def slack_command_simple(view_func):
         return view_func(request, *args, **kwargs)
 
     return wraps(view_func)(wrapped_view)
+
+
+def slack_interactivity(interactivity_type):
+    def _decorator(handler_func):
+        if slack_interactivity_callbacks.get(interactivity_type, None):
+            raise ImproperlyConfigured(f"You are trying to connect '{interactivity_type}' in multiple functions.")
+        slack_interactivity_callbacks[interactivity_type] = handler_func
+        return handler_func
+
+    return _decorator

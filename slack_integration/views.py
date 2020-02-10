@@ -1,15 +1,19 @@
+import json
+
 import slack
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from .decorators import slack_verify_request
 from .settings import SLACK_LOGIN_OAUTH_REDIRECT_URL, SLACK_INSTALL_OAUTH_REDIRECT_URL
-from .helpers import create_workspace_from_oauth2_response
+from .helpers import create_workspace_from_oauth2_response, slack_interactivity_callbacks
 
 
 @login_required  # we make sure user is logged-in in order to link Slack
@@ -53,3 +57,13 @@ def slack_login_callback(request):
     return HttpResponseRedirect(SLACK_LOGIN_OAUTH_REDIRECT_URL)
 
 
+@csrf_exempt
+@slack_verify_request
+@require_http_methods(["POST"])
+def slack_interactivity(request):
+    payload = json.loads(request.POST.get('payload'))
+    fn = slack_interactivity_callbacks.get(payload.get('type'), None)
+    if fn:
+        return fn(payload)
+
+    return HttpResponse(status=400)
