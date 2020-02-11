@@ -1,4 +1,4 @@
 include LICENSE
 include README.rst
-recursive-include slack_integration/ *
+recursive-include slack_app/ *
 recursive-include docs *

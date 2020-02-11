@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from slack_integration.version import __version__
+from .slack_app.version import __version__
 
 setup(
     version=__version__,

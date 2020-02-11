@@ -12,7 +12,7 @@ It provides you with
 
 ## Installation
 
-1. Add 'slack_integration' to your INSTALLED_APPS setting like this:
+1. Add 'slack_app' to your INSTALLED_APPS setting like this:
 
     ```python
     INSTALLED_APPS = [
@@ -25,17 +25,17 @@ It provides you with
 2. Include the urls in your project `urls.py` like this:
 
     ```
-    path('slack/', include(('slack_integration.urls', 'slack_integration'), namespace='slack_integration')),
+    path('slack/', include('slack_app.urls')),
     ```
 
-3. Run `python manage.py migrate` to create the `slack_integration` models.
+3. Run `python manage.py migrate` to create the `slack_app` models.
 
-4. Add `slack_integration.auth_backends.SlackAuthenticationBackend` to your `AUTHENTICATION_BACKENDS`
+4. Add `slack_app.auth_backends.SlackAuthenticationBackend` to your `AUTHENTICATION_BACKENDS`
 
     ```python
     AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
-        'slack_integration.auth_backends.SlackAuthenticationBackend',
+        'slack_app.auth_backends.SlackAuthenticationBackend',
     ]
     ```
 

@@ -7,7 +7,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sites",
-    "slack_integration",
+    "slack_app",
 ]
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +25,7 @@ settings.configure(
     MIDDLEWARE_CLASSES=(),
     SITE_ID=1,
     INSTALLED_APPS=INSTALLED_APPS,
-    ROOT_URLCONF="slack_integration.urls",
+    ROOT_URLCONF="slack_app.urls",
 )
 
 django.setup()
