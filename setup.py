@@ -1,8 +1,6 @@
 from setuptools import setup
 
-from .slack_app.version import __version__
-
 setup(
-    version=__version__,
+    version="1.0.1",
     install_requires=["slackclient"]
 )
