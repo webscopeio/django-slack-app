@@ -52,7 +52,7 @@ def slack_login_callback(request):
     user = authenticate(
         request,
         code=code,
-        redirect_uri=request.build_absolute_uri(reverse("slack_integration:login"))
+        redirect_uri=request.build_absolute_uri(reverse("slack_app:login"))
     )
 
     if user is not None:
@@ -79,7 +79,7 @@ def slack_interactivity(request):
                             "Please ask your administrators to finish the installation."
                 })
             except SlackAccountNotLinkedException as err:
-                url = reverse('slack_integration:connect_account', kwargs={'nonce': err.slack_user_mapping.nonce})
+                url = reverse('slack_app:connect_account', kwargs={'nonce': err.slack_user_mapping.nonce})
                 return JsonResponse({
                     "text": "Hi, it seems like you haven't linked your Slack account to your Scrumie account. " +
                             f"You can do so <{request.build_absolute_uri(url)}|here>"
@@ -124,7 +124,7 @@ def slack_command(request, name: str):
                             "Please ask your administrators to finish the installation."
                 })
             except SlackAccountNotLinkedException as err:
-                url = reverse('slack_integration:connect_account', kwargs={'nonce': err.slack_user_mapping.nonce})
+                url = reverse('slack_app:connect_account', kwargs={'nonce': err.slack_user_mapping.nonce})
                 return JsonResponse({
                     "text": "Hi, it seems like you haven't linked your Slack account to your Scrumie account. " +
                             f"You can do so <{request.build_absolute_uri(url)}|here>"

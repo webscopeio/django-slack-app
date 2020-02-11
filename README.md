@@ -17,7 +17,7 @@ It provides you with
     ```python
     INSTALLED_APPS = [
         ...
-        'slack_integration',
+        'slack_app',
         ...
     ]
     ```

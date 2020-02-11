@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import slack_oauthcallback, slack_login_callback, slack_interactivity, slack_command, connect_account
 
-app_name = "slack_integration"
+app_name = "slack_app"
 
 urlpatterns = [
     path('install/', slack_oauthcallback, name='install'),

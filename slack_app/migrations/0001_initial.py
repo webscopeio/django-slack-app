@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('configuration_url', models.URLField(max_length=255)),
                 ('url', models.URLField(max_length=255)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('workspace', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webhooks', to='slack_integration.SlackWorkspace')),
+                ('workspace', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webhooks', to='slack_app.SlackWorkspace')),
             ],
         ),
         migrations.CreateModel(
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ('workspace_image_132', models.URLField(null=True)),
                 ('workspace_image_230', models.URLField(null=True)),
                 ('workspace_image_original', models.URLField(null=True)),
-                ('slack_workspace', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='slack_users', to='slack_integration.SlackWorkspace')),
+                ('slack_workspace', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='slack_users', to='slack_app.SlackWorkspace')),
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='slack_accounts', to=settings.AUTH_USER_MODEL)),
             ],
         ),
