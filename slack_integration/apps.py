@@ -9,4 +9,4 @@ class SlackIntegrationAppConfig(AppConfig):
     def ready(self):
         super().ready()
 
-        autodiscover_modules('slack_interactivity')
+        autodiscover_modules('slack')

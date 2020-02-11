@@ -11,6 +11,7 @@ from django.http import HttpRequest
 from .models import SlackWorkspace, SlackWebHook, SlackUserMapping
 
 slack_interactivity_callbacks = dict()
+slack_commands = dict()
 
 
 def create_workspace_from_oauth2_response(request_user, response) -> Tuple[SlackWorkspace, SlackWebHook]:
