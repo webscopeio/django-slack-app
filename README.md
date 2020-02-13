@@ -53,11 +53,11 @@ It provides you with
 6. Add following URLs to your Slack app's Redirect URLs (OAuth & Permissions)
 
    ```
-   <your_host>/applications/slack/oauthcallback/
-   <your_host>/applications/slack/login/
+   <your_host>/slack/oauthcallback/
+   <your_host>/slack/login/
    ```
    
-7. (Optional) Put `<your_host>/applications/slack/interactivity/` as your Request URL in `Interactive Components` section
+7. (Optional) Put `<your_host>/slack/interactivity/` as your Request URL in `Interactive Components` section
 
-8. (Optional) Configure your Slash commands's Request URL as `<your_host>/applications/slack/commands/<command_name>/`
+8. (Optional) Configure your Slash commands's Request URL as `<your_host>/slack/commands/<command_name>/`
    
