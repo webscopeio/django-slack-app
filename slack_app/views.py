@@ -70,8 +70,8 @@ def slack_interactivity(request):
         if required_linked_account:
             try:
                 workspace, mapping = get_slack_user_and_workspace(
-                    request.POST.get('team_id'),
-                    request.POST.get('user_id')
+                    payload.get('team').get('id'),
+                    payload.get('user').get('id'),
                 )
             except SlackAppNotInstalledProperlyException:
                 return JsonResponse({
