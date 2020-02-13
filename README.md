@@ -61,3 +61,37 @@ It provides you with
 
 8. (Optional) Configure your Slash commands's Request URL as `<your_host>/slack/commands/<command_name>/`
    
+## Usage
+
+### Slack commands
+
+If you want to create a new Slack command with name `/example`, configure your Request URL as `<your_host>/slack/commands/example/` and put the following code into `slack.py` inside your app's directory.
+
+```python
+@slack_command('example', require_linked_account=True)
+def scrumie_staging_command(request, slack_user_mapping, slack_workspace):
+    print(slack_user_mapping, slack_workspace)
+    return JsonResponse({
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "Hello _world_"
+                },
+            }
+        ],
+        "text": "Hello World"
+    })
+```
+
+### Slack Interactivity
+
+Put the following to your `slack.py` inside your app's directory.
+
+```python
+@slack_interactivity('block_actions')
+def process_block_actions(payload):
+    print('>>>>', payload)
+    return HttpResponse()
+```
