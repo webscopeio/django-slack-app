@@ -87,7 +87,7 @@ def slack_interactivity(request):
         else:
             mapping = None
             workspace = None
-        return fn(payload, mapping, workspace)
+        return fn(request, payload, mapping, workspace)
 
     return HttpResponse(status=400)
 
@@ -133,7 +133,7 @@ def slack_command(request, name: str):
             workspace = None
             mapping = None
 
-        return fn(payload, mapping, workspace)
+        return fn(request, payload, mapping, workspace)
 
     return HttpResponse(status=400)
 
