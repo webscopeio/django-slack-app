@@ -69,7 +69,7 @@ def slack_interactivity(request):
     if fn:
         if required_linked_account:
             try:
-                workspace, mapping = get_slack_user_and_workspace(
+                mapping, workspace = get_slack_user_and_workspace(
                     payload.get('team').get('id'),
                     payload.get('user').get('id'),
                 )
