@@ -114,7 +114,7 @@ def slack_command(request, name: str):
     if fn:
         if required_linked_account:
             try:
-                workspace, mapping = get_slack_user_and_workspace(
+                mapping, workspace = get_slack_user_and_workspace(
                     request.POST.get('team_id'),
                     request.POST.get('user_id')
                 )
