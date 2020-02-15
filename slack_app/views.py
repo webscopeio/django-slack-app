@@ -11,7 +11,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from .exceptions import SlackAppNotInstalledProperlyException, SlackAccountNotLinkedException
+from .exceptions import SlackAppNotInstalledProperlyException, SlackAccountNotLinkedException, SlackCommandDoesNotExist, \
+    SlackInteractivityTypeDoesNotExist
 from .models import SlackWorkspace, SlackUserMapping
 from .decorators import slack_verify_request
 from .settings import SLACK_LOGIN_OAUTH_REDIRECT_URL, SLACK_INSTALL_OAUTH_REDIRECT_URL
@@ -65,7 +66,14 @@ def slack_login_callback(request):
 @require_http_methods(["POST"])
 def slack_interactivity(request):
     payload = json.loads(request.POST.get('payload'))
-    fn, required_linked_account = slack_interactivity_callbacks.get(payload.get('type'), None)
+    payload_type = payload.get("type")
+    callback = slack_interactivity_callbacks.get(payload_type, None)
+
+    if callback is None:
+        raise SlackInteractivityTypeDoesNotExist(
+            f"Interactivity type '{payload_type}' is not linked using @slack_interactivity decorator")
+
+    fn, required_linked_account = callback
     if fn:
         if required_linked_account:
             try:
@@ -110,7 +118,12 @@ def get_slack_user_and_workspace(team_id, user_id) -> Tuple[SlackUserMapping, Sl
 @require_http_methods(["POST"])
 def slack_command(request, name: str):
     payload = request.POST
-    fn, required_linked_account = slack_commands.get(name, None)
+    callback = slack_commands.get(name, None)
+
+    if callback is None:
+        raise SlackCommandDoesNotExist(f"Command '{name}' is not linked using @slack_command decorator")
+
+    fn, required_linked_account = callback
     if fn:
         if required_linked_account:
             try:

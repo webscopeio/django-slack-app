@@ -9,6 +9,19 @@ class SlackAccountNotLinkedException(Exception):
     """
     Thrown if user is not linked with a User model yet.
     """
+
     def __init__(self, slack_user_mapping):
         super().__init__()
         self.slack_user_mapping = slack_user_mapping
+
+
+class SlackReceiverDoesNotExist(Exception):
+    pass
+
+
+class SlackInteractivityTypeDoesNotExist(SlackReceiverDoesNotExist):
+    pass
+
+
+class SlackCommandDoesNotExist(SlackReceiverDoesNotExist):
+    pass
