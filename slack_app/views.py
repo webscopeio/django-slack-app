@@ -11,6 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from .signals import slack_event_received
 from .exceptions import SlackAppNotInstalledProperlyException, SlackAccountNotLinkedException, SlackCommandDoesNotExist, \
     SlackInteractivityTypeDoesNotExist
 from .models import SlackWorkspace, SlackUserMapping
@@ -160,3 +161,25 @@ def connect_account(request, nonce: str):
     # TODO - allow to specify a function that accepts request, mapping & user and return whatever it wants
     # (Redirect/Render, etc)
     return render(request, "verified_nonce.html")
+
+
+@slack_verify_request
+def slack_events(request):
+    data = json.loads(request.body)
+
+    if data.get("type") == "url_verification":
+        return JsonResponse({
+            "challenge": data.get("challenge"),
+        })
+
+    if data.get("type") == "event_callback":
+        event_data = data.pop('event')
+        event_type = event_data.pop('type')
+
+        slack_event_received.send(sender=request, event_type=event_type, event_data=event_data, **data)
+        return JsonResponse({})
+
+    if data.get("type") == 'app_rate_limited':
+        return JsonResponse({})
+
+    return NotImplementedError(f"Unknown type {type}")
