@@ -1,7 +1,11 @@
 from functools import wraps
 
+import slack
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseBadRequest
+
+from .signals import slack_event_received, refresh_home
+from .models import SlackUserMapping, SlackWorkspace
 
 from .helpers import is_verified_slack_request, slack_interactivity_callbacks, slack_commands
 
@@ -37,3 +41,56 @@ def slack_verify_request(view_func):
     view_func.csrf_exempt = True
 
     return wraps(view_func)(wrapped_view)
+
+
+def on_slack_signal(*event_types, inject_slack_models=False):
+    def decorator_receiver(receiver_func):
+        @wraps(receiver_func)
+        def signal_receiver(sender, event_type, event_data, signal, **kwargs):
+            if event_type in event_types:
+                slack_models = {
+                    "slack_user_mapping": SlackUserMapping.objects.get(pk=event_data.get('user')),
+                    "slack_workspace": SlackWorkspace.objects.get(pk=kwargs.get('team_id')),
+                } if inject_slack_models else {}
+                return receiver_func(sender, event_data=event_data, event_type=event_type, **slack_models, **kwargs)
+
+        slack_event_received.connect(signal_receiver, weak=False)
+
+    return decorator_receiver
+
+
+def slack_app_home(receiver_func):
+    @wraps(receiver_func)
+    def signal_receiver(
+        sender,
+        event_type=None,
+        event_data=None,
+
+        slack_user_mapping=None,
+        slack_workspace=None,
+        **kwargs
+    ):
+        if event_type == 'app_home_opened':
+            slack_user_mapping = SlackUserMapping.objects.get(pk=event_data.get('user'))
+            slack_workspace = SlackWorkspace.objects.get(pk=kwargs.get('team_id'))
+
+        blocks, title = receiver_func(
+            sender,
+            event_data=event_data,
+            event_type=event_type,
+            slack_user_mapping=slack_user_mapping,
+            slack_workspace=slack_workspace,
+            **kwargs,
+        )
+
+        client = slack.WebClient(token=slack_workspace.bot_access_token)
+        client.views_publish(user_id=slack_user_mapping.slack_user_id, view={
+            "type": 'home',
+            "title": title,
+            "blocks": blocks
+        })
+
+    slack_event_received.connect(signal_receiver, weak=False)
+    refresh_home.connect(signal_receiver, weak=False)
+
+    return signal_receiver
