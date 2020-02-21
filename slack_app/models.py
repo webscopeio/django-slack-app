@@ -180,4 +180,8 @@ def refetch_user_slack_metadata(sender, user, request, **kwargs):
     We will re-fetch user's data after a successful login.
     """
     for slack_user in user.slack_accounts.all():
-        slack_user.update_slack_metadata()
+        try:
+            slack_user.update_slack_metadata()
+        except SlackApiError:
+            # for now fail silently
+            pass
