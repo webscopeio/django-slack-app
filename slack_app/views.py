@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from .signals import slack_event_received
+from .tasks import receive_slack_signal_task
 from .exceptions import SlackAppNotInstalledProperlyException, SlackAccountNotLinkedException, SlackCommandDoesNotExist, \
     SlackInteractivityTypeDoesNotExist
 from .models import SlackWorkspace, SlackUserMapping
@@ -176,7 +176,7 @@ def slack_events(request):
         event_data = data.pop('event')
         event_type = event_data.pop('type')
 
-        slack_event_received.send(sender=request, event_type=event_type, event_data=event_data, **data)
+        receive_slack_signal_task.delay(sender=request.get_host(), event_type=event_type, event_data=event_data, **data)
         return JsonResponse({})
 
     if data.get("type") == 'app_rate_limited':
