@@ -48,9 +48,19 @@ def on_slack_signal(*event_types, inject_slack_models=False):
         @wraps(receiver_func)
         def signal_receiver(sender, event_type, event_data, signal, **kwargs):
             if event_type in event_types:
+                try:
+                    slack_user_mapping = SlackUserMapping.objects.get(pk=event_data.get('user'))
+                except SlackUserMapping.DoesNotExist:
+                    slack_user_mapping = None
+
+                try:
+                    slack_workspace = SlackWorkspace.objects.get(pk=kwargs.get('team_id'))
+                except SlackWorkspace.DoesNotExist:
+                    slack_workspace = None
+
                 slack_models = {
-                    "slack_user_mapping": SlackUserMapping.objects.get(pk=event_data.get('user')),
-                    "slack_workspace": SlackWorkspace.objects.get(pk=kwargs.get('team_id')),
+                    "slack_user_mapping": slack_user_mapping,
+                    "slack_workspace": slack_workspace,
                 } if inject_slack_models else {}
                 return receiver_func(sender, event_data=event_data, event_type=event_type, **slack_models, **kwargs)
 
