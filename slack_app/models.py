@@ -3,7 +3,8 @@ import slack
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, user_logged_in
-from django.db.models.JSONField import JSONField
+from django.db.models.fields import json
+
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -20,7 +21,7 @@ class SlackWorkspace(models.Model):
     bot_user_id = models.CharField(max_length=255)
     last_changed = models.DateTimeField(auto_now_add=True)
     created = models.DateTimeField(auto_now_add=True)
-    response = JSONField()
+    response = json
 
     owners = models.ManyToManyField(User, related_name='owned_slack_workspaces')
 
