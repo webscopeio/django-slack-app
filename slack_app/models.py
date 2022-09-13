@@ -3,7 +3,7 @@ import slack
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, user_logged_in
-from django.contrib.postgres.fields import JSONField
+from django.db.models.JSONField import JSONField
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
